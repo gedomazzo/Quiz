@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,22 +19,37 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private final String FILENAME = "questions";
 
-    TextView textView;
-    EditText ed;
-    Button btn;
-    private String strwr;
+
+    RadioGroup radioGroup;
+    RadioButton radio1, radio2, radio3, radio4;
+    TextView quiz;
+    Button next;
+    String Total;
+
+    List<String> questionsList = new ArrayList<>();
+    int currentQuestionIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        textView = findViewById(R.id.textView);
-        ed = findViewById(R.id.ed);
-        btn = findViewById(R.id.btn);
+
+        radioGroup = findViewById(R.id.group);
+
+        radio1 = findViewById(R.id.an1);
+        radio2 = findViewById(R.id.an2);
+        radio3 = findViewById(R.id.an3);
+        radio4 = findViewById(R.id.an4);
+
+        quiz = findViewById(R.id.quiz);
+        next = findViewById(R.id.next);
+
 
 
 
@@ -50,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 
                 String text = sB.toString();
-                //textView.setText(sB);
+                Total = text;
                 Log.d("QUIZ_DEBUG", "File content: " + text);
                 
             } catch (IOException e) {
@@ -60,45 +77,41 @@ public class MainActivity extends AppCompatActivity {
             Log.e("QUIZ_DEBUG", "Resource not found: " + FILENAME);
         }
 
+
+        read();
+
+
+        questionsList = splitIntoLines(Total);
+
+        qustion q = new qustion(questionsList.get(0), 1);
+
+        Log.d("system_debugg", "Questions: " + questionsList.toString());
+        Log.d("system_debugg", "Questions: " + q.toString());
+
     }
 
 
-    public void write(View view) {
-        strwr=ed.getText().toString();
-        try {
-            FileOutputStream fOS = openFileOutput(FILENAME,MODE_PRIVATE);
-            OutputStreamWriter oSW = new OutputStreamWriter(fOS);
-            BufferedWriter bW = new BufferedWriter(oSW);
-            bW.write(strwr);
-            bW.close();
-            oSW.close();
-            fOS.close();
 
-            textView.setText(strwr);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static List<String> splitIntoLines(String input) {
+        List<String> lines = new ArrayList<>();
+
+        if (input == null || input.isEmpty()) {
+            return lines;
         }
-    }
 
 
+        String[] split = input.split("\\r?\\n");
 
-    public void reset(View view) {
-        try {
-            FileOutputStream fOS = openFileOutput(FILENAME,MODE_PRIVATE);
-            OutputStreamWriter oSW = new OutputStreamWriter(fOS);
-            BufferedWriter bW = new BufferedWriter(oSW);
-            bW.write("");
-            bW.close();
-            oSW.close();
-            fOS.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (String line : split) {
+            lines.add(line);
         }
-        ed.setText("");
-        textView.setText("");
+
+        return lines;
     }
 
-    public void read(View view) {
+
+
+    public void read(){
         try {
             FileInputStream fIS= openFileInput(FILENAME);
             InputStreamReader iSR = new InputStreamReader(fIS);
@@ -112,15 +125,17 @@ public class MainActivity extends AppCompatActivity {
             bR.close();
             iSR.close();
             fIS.close();
-            textView.setText(sB.toString());
+
+            Total += sB.toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void push(View view) {
 
-        write(view);
+    public void Push(View view) {
+
+
     }
 }
 
