@@ -1,5 +1,6 @@
 package com.example.quiz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -29,17 +30,19 @@ public class MainActivity extends AppCompatActivity {
     RadioGroup radioGroup;
     RadioButton radio1, radio2, radio3, radio4;
     TextView quiz;
+    TextView score_text;
     Button next;
     String Total;
 
     List<String> questionsList = new ArrayList<>();
-    int currentQuestionIndex = 0;
+    List<qustion> questions = new ArrayList<>();
+    int currentQuestionIndex = -1;
+    int score = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         radioGroup = findViewById(R.id.group);
 
         radio1 = findViewById(R.id.an1);
@@ -48,9 +51,8 @@ public class MainActivity extends AppCompatActivity {
         radio4 = findViewById(R.id.an4);
 
         quiz = findViewById(R.id.quiz);
+        score_text = findViewById(R.id.score_text);
         next = findViewById(R.id.next);
-
-
 
 
         int resourcedID = this.getResources().getIdentifier(FILENAME, "raw", this.getPackageName());
@@ -65,11 +67,11 @@ public class MainActivity extends AppCompatActivity {
                 while ((line = br.readLine()) != null) {
                     sB.append(line).append('\n');
                 }
-                
+
                 String text = sB.toString();
                 Total = text;
                 Log.d("QUIZ_DEBUG", "File content: " + text);
-                
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -80,16 +82,10 @@ public class MainActivity extends AppCompatActivity {
 
         read();
 
+        Log.d("QUIZ_DEBUG", "Questions: " + questions.toString());
 
-        questionsList = splitIntoLines(Total);
-
-        qustion q = new qustion(questionsList.get(0), 1);
-
-        Log.d("system_debugg", "Questions: " + questionsList.toString());
-        Log.d("system_debugg", "Questions: " + q.toString());
 
     }
-
 
 
     public static List<String> splitIntoLines(String input) {
@@ -98,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
         if (input == null || input.isEmpty()) {
             return lines;
         }
-
 
         String[] split = input.split("\\r?\\n");
 
@@ -110,16 +105,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-    public void read(){
+    public void read() {
         try {
-            FileInputStream fIS= openFileInput(FILENAME);
+            FileInputStream fIS = openFileInput(FILENAME);
             InputStreamReader iSR = new InputStreamReader(fIS);
             BufferedReader bR = new BufferedReader(iSR);
             StringBuilder sB = new StringBuilder();
             String line = bR.readLine();
             while (line != null) {
-                sB.append(line+'\n');
+                sB.append(line + '\n');
                 line = bR.readLine();
             }
             bR.close();
@@ -130,13 +124,48 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        qustion q;
+        questionsList = splitIntoLines(Total);
+        for (int i = 0; i < questionsList.size()-1; i++) {
+            q = new qustion(questionsList.get(i), i);
+            questions.add(q);
+        }
     }
 
 
     public void Push(View view) {
+        radioGroup.setVisibility(View.VISIBLE);
+        if (currentQuestionIndex >= 0 && currentQuestionIndex < questions.size()) {
+            int selectedId = radioGroup.getCheckedRadioButtonId();
+            if (selectedId == R.id.an1) {
+                score++;
+                score_text.setText(String.valueOf(score));
+            }
+            radioGroup.clearCheck();
+        }
+
+        // 2. Move to the next question
+        currentQuestionIndex++;
+        if (currentQuestionIndex >= questions.size()) {
+            radioGroup.setVisibility(View.INVISIBLE);
+            quiz.setText("THE END");
+        } else {
+
+            qustion current = questions.get(currentQuestionIndex);
+
+            quiz.setText(current.getQu());
+            radio1.setText(current.getAn1());
+            radio2.setText(current.getAn2());
+            radio3.setText(current.getAn3());
+            radio4.setText(current.getAn4());
+        }
+    }
 
 
+
+    public void add(View view) {
+        Intent shaw = new Intent(this, writing.class);
+        startActivity(shaw);
     }
 }
-
-
