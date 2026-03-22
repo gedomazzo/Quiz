@@ -11,11 +11,24 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+/** 
+* @author        benjamin rogachevsky 
+* @version       1.0
+* @since           1/7/26
+* Activity responsible for capturing user input to create new quiz questions and saving them to internal storage.
+*/
 public class writing extends AppCompatActivity {
 
     EditText que, ans1, ans2, ans3, ans4, rnum;
     private final String FILENAME = "a";
 
+    /** 
+    * Initializes the activity layout and links UI components.
+    * <p>
+    * 
+    * @param savedInstanceState bundle containing the activity's previously saved state
+    * @return void
+    */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +42,13 @@ public class writing extends AppCompatActivity {
         rnum = findViewById(R.id.rnum);
     }
 
+    /** 
+    * Validates that all fields are filled, saves the data, and returns to the previous screen.
+    * <p>
+    * 
+    * @param view the view that was clicked to trigger this action
+    * @return void
+    */
     public void back(View view) {
         if (!que.getText().toString().isEmpty() &&
             !ans1.getText().toString().isEmpty() &&
@@ -43,6 +63,13 @@ public class writing extends AppCompatActivity {
         }
     }
 
+    /** 
+    * Formats the question and answers into a single line and appends it to the questions file.
+    * <p>
+    * 
+    * @param view the view that was clicked to trigger the write operation
+    * @return void
+    */
     public void write(View view) {
         // 1. Get the text RIGHT NOW when the button is pressed, not in onCreate
         String strwr = que.getText().toString() + "|" + 

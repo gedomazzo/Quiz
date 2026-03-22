@@ -26,6 +26,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/** 
+* @author        benjamin rogachevsky 
+* @version       1.0
+* @since           1/7/26
+* Main activity that handles the quiz gameplay, question loading, and high score management.
+*/
 public class MainActivity extends AppCompatActivity {
     private final String FILENAME = "questions";
     private final String PREFS_NAME = "QuizPrefs";
@@ -44,6 +50,13 @@ public class MainActivity extends AppCompatActivity {
     int currentQuestionIndex = -1;
     int score = 0;
 
+    /** 
+    * Initializes the activity, sets up the UI components, and loads the initial quiz state.
+    * <p>
+    * 
+    * @param savedInstanceState bundle containing the activity's previously saved state
+    * @return void
+    */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +78,13 @@ public class MainActivity extends AppCompatActivity {
         Push(null);
     }
 
+    /** 
+    * Retrieves the high score from SharedPreferences and updates the corresponding TextView.
+    * <p>
+    * 
+    * @param 
+    * @return void
+    */
     private void updateHighScoreDisplay() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         int highScore = prefs.getInt(KEY_HIGH_SCORE, 0);
@@ -73,6 +93,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** 
+    * Compares the current score with the high score and saves it if the current score is higher.
+    * <p>
+    * 
+    * @param 
+    * @return void
+    */
     private void checkAndSaveHighScore() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         int highScore = prefs.getInt(KEY_HIGH_SCORE, 0);
@@ -84,6 +111,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** 
+    * Splits a single string into a list of lines, filtering out empty lines.
+    * <p>
+    * 
+    * @param input the raw string content to be split
+    * @return list of non-empty strings representing each line
+    */
     public static List<String> splitIntoLines(String input) {
         List<String> lines = new ArrayList<>();
         if (input == null || input.isEmpty()) return lines;
@@ -94,6 +128,13 @@ public class MainActivity extends AppCompatActivity {
         return lines;
     }
 
+    /** 
+    * Reads question data from both raw resources and internal storage to populate the quiz list.
+    * <p>
+    * 
+    * @param 
+    * @return void
+    */
     public void read() {
         Total = "";
         questions.clear();
@@ -135,6 +176,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** 
+    * Handles the logic for checking the current answer and displaying the next question or finishing the quiz.
+    * <p>
+    * 
+    * @param view the view that was clicked to trigger the next question
+    * @return void
+    */
     public void Push(View view) {
         radioGroup.setVisibility(View.VISIBLE);
         
@@ -170,11 +218,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** 
+    * Opens the activity for adding new questions.
+    * <p>
+    * 
+    * @param view the view that was clicked to trigger adding a question
+    * @return void
+    */
     public void add(View view) {
         Intent shaw = new Intent(this, writing.class);
         startActivity(shaw);
     }
 
+    /** 
+    * Refreshes the quiz state and high score when returning to the activity.
+    * <p>
+    * 
+    * @param 
+    * @return void
+    */
     @Override
     protected void onResume() {
         super.onResume();
@@ -186,17 +248,38 @@ public class MainActivity extends AppCompatActivity {
         Push(null);
     }
 
+    /** 
+    * Removes duplicate elements from a list while maintaining order.
+    * <p>
+    * 
+    * @param list the list containing potentially duplicate elements
+    * @return a new list with duplicates removed
+    */
     public static <T> List<T> removeDuplicates(List<T> list) {
         Set<T> set = new LinkedHashSet<>(list);
         return new ArrayList<>(set);
     }
 
+    /** 
+    * Inflates the options menu for the activity.
+    * <p>
+    * 
+    * @param menu the options menu in which items are placed
+    * @return true if the menu was successfully created
+    */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
 
+    /** 
+    * Handles the action when a menu item is selected.
+    * <p>
+    * 
+    * @param item the menu item that was selected
+    * @return true if the action was handled successfully
+    */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         String temp = item.getTitle().toString();
