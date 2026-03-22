@@ -30,8 +30,17 @@ public class writing extends AppCompatActivity {
     }
 
     public void back(View view) {
-        write(view);
-        finish();
+        if (!que.getText().toString().isEmpty() &&
+            !ans1.getText().toString().isEmpty() &&
+            !ans2.getText().toString().isEmpty() &&
+            !ans3.getText().toString().isEmpty() &
+            !ans4.getText().toString().isEmpty() &&
+            !rnum.getText().toString().isEmpty()) {
+
+
+            write(view);
+            finish();
+        }
     }
 
     public void write(View view) {
