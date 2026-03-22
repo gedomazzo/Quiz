@@ -11,17 +11,20 @@ public class qustion {
     String an4;
     int ran;
 
-    public qustion(String all, int ran) {
+    public qustion(String all) {
         String[] parts = all.split("\\|");
-        if (parts.length >= 5) {
+        if (parts.length >= 6) {
             this.qu = parts[0];
             this.an1 = parts[1];
             this.an2 = parts[2];
             this.an3 = parts[3];
             this.an4 = parts[4];
+            try {
+                this.ran = Integer.parseInt(parts[5].trim());
+            } catch (NumberFormatException e) {
+                this.ran = 1;
+            }
         }
-        this.ran = ran;
-
     }
 
     public String getQu() {

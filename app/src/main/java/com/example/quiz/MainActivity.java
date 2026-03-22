@@ -21,7 +21,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
     private final String FILENAME = "questions";
@@ -32,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     TextView quiz;
     TextView score_text;
     Button next;
-    String Total;
+    String Total = "";
 
     List<String> questionsList = new ArrayList<>();
     List<qustion> questions = new ArrayList<>();
@@ -54,37 +56,11 @@ public class MainActivity extends AppCompatActivity {
         score_text = findViewById(R.id.score_text);
         next = findViewById(R.id.next);
 
-
-        int resourcedID = this.getResources().getIdentifier(FILENAME, "raw", this.getPackageName());
-
-        if (resourcedID != 0) {
-            try (InputStream iS = this.getResources().openRawResource(resourcedID);
-                 InputStreamReader isr = new InputStreamReader(iS);
-                 BufferedReader br = new BufferedReader(isr)) {
-
-                StringBuilder sB = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) {
-                    sB.append(line).append('\n');
-                }
-
-                String text = sB.toString();
-                Total = text;
-                Log.d("QUIZ_DEBUG", "File content: " + text);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            Log.e("QUIZ_DEBUG", "Resource not found: " + FILENAME);
-        }
-
-
+        // Initial read
         read();
-
-        Log.d("QUIZ_DEBUG", "Questions: " + questions.toString());
-
-
+        
+        // Show first question
+        Push(null);
     }
 
 
@@ -98,7 +74,9 @@ public class MainActivity extends AppCompatActivity {
         String[] split = input.split("\\r?\\n");
 
         for (String line : split) {
-            lines.add(line);
+            if (!line.trim().isEmpty()) {
+                lines.add(line);
+            }
         }
 
         return lines;
@@ -106,29 +84,48 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void read() {
-        try {
-            FileInputStream fIS = openFileInput(FILENAME);
-            InputStreamReader iSR = new InputStreamReader(fIS);
-            BufferedReader bR = new BufferedReader(iSR);
-            StringBuilder sB = new StringBuilder();
-            String line = bR.readLine();
-            while (line != null) {
-                sB.append(line + '\n');
-                line = bR.readLine();
-            }
-            bR.close();
-            iSR.close();
-            fIS.close();
+        // 1. Clear everything to prevent duplicates
+        Total = "";
+        questions.clear();
+        questionsList.clear();
 
-            Total += sB.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        int resourcedID = this.getResources().getIdentifier(FILENAME, "raw", this.getPackageName());
+        if (resourcedID != 0) {
+            try (InputStream iS = this.getResources().openRawResource(resourcedID);
+                 BufferedReader br = new BufferedReader(new InputStreamReader(iS))) {
+                StringBuilder sB = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sB.append(line).append('\n');
+                }
+                Total = sB.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        qustion q;
+        try {
+            FileInputStream fIS = openFileInput("a");
+            BufferedReader bR = new BufferedReader(new InputStreamReader(fIS));
+            StringBuilder sB = new StringBuilder();
+            String line;
+            while ((line = bR.readLine()) != null) {
+                sB.append(line).append('\n');
+            }
+            bR.close();
+            Total += sB.toString();
+        } catch (IOException e) {
+            // It's okay if user1 doesn't exist yet
+        }
+
+        // 4. Populate questions list (don't use size()-1, use full size)
         questionsList = splitIntoLines(Total);
-        for (int i = 0; i < questionsList.size()-1; i++) {
-            q = new qustion(questionsList.get(i), i);
+        questionsList = removeDuplicates(questionsList);
+
+        qustion q;
+        for (int i = 0; i < questionsList.size(); i++) {
+            q = new qustion(questionsList.get(i));
             questions.add(q);
         }
     }
@@ -136,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void Push(View view) {
         radioGroup.setVisibility(View.VISIBLE);
+        
+        // 1. Check answer of the question currently on screen
         if (currentQuestionIndex >= 0 && currentQuestionIndex < questions.size()) {
             int selectedId = radioGroup.getCheckedRadioButtonId();
             if (selectedId == R.id.an1) {
@@ -151,9 +150,7 @@ public class MainActivity extends AppCompatActivity {
             radioGroup.setVisibility(View.INVISIBLE);
             quiz.setText("THE END");
         } else {
-
             qustion current = questions.get(currentQuestionIndex);
-
             quiz.setText(current.getQu());
             radio1.setText(current.getAn1());
             radio2.setText(current.getAn2());
@@ -168,4 +165,20 @@ public class MainActivity extends AppCompatActivity {
         Intent shaw = new Intent(this, writing.class);
         startActivity(shaw);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reset state so when we come back we start from the beginning with updated data
+        currentQuestionIndex = -1;
+        score = 0;
+        score_text.setText("0");
+        read();
+    }
+
+    public static <T> List<T> removeDuplicates(List<T> list) {
+        Set<T> set = new LinkedHashSet<>(list);
+        return new ArrayList<>(set);
+    }
+
 }
