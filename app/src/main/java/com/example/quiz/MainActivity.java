@@ -3,6 +3,8 @@ package com.example.quiz;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,6 +12,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedReader;
@@ -179,6 +182,26 @@ public class MainActivity extends AppCompatActivity {
     public static <T> List<T> removeDuplicates(List<T> list) {
         Set<T> set = new LinkedHashSet<>(list);
         return new ArrayList<>(set);
+    }
+
+
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        String temp = item.getTitle().toString();
+        if (temp.equals("Credits")) {
+            Intent kuku = new Intent(this, MainActivityName.class);
+            startActivity(kuku);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 }
